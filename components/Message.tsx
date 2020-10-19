@@ -3,16 +3,26 @@ import { Chip } from "@material-ui/core"
 
 interface MessageProps {
   text: string
-  author: 'you' | 'interlocutor'
+  author: string
+  date: any
 }
 
-const Message: React.FC<MessageProps> = ({text, author}) => {
+const Message: React.FC<MessageProps> = ({text, author, date}) => {
   return (
-    <Chip 
-      label={text} 
-      className={author === 'you' ? `${classes.message} ${classes.yourMessage}` : classes.message} 
-    />
+    <div className={author === 'you' ? `${classes.messageWrapper} ${classes.yourMessageWrapper}` : classes.messageWrapper} >
+      <div className={classes.author}>
+        {
+          author === 'you' ?
+          'Ты' :
+          author
+        }
+      </div>
+      <Chip 
+        label={text} 
+        className={author === 'you' ? `${classes.message} ${classes.yourMessage}` : classes.message} 
+      />
+      <div className={classes.sendTime}>{date}</div>
+    </div>
   )
 }
-
 export default Message

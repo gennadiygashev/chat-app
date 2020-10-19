@@ -1,6 +1,7 @@
 export interface IMessage {
   text: string
   nickname: string
+  date: any
 }
 
 export interface InitialState {

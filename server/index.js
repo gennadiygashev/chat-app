@@ -46,10 +46,11 @@ io.on('connection', (socket) => {
     socket.to(roomID).emit('socket:set_users', users)
   })
 
-  socket.on('socket:new_message', ({ roomID, nickname, text }) => {
+  socket.on('socket:new_message', ({ roomID, nickname, text, date }) => {
     const obj = {
       nickname,
-      text
+      text,
+      date
     }
     rooms.get(roomID).get('messages').push(obj)
     socket.to(roomID).emit('socket:new_message', obj)

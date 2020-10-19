@@ -1,10 +1,39 @@
-.message {
-  margin-bottom: 5px;
-  max-width: 50%;
+.messageWrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin: 3px;
+  align-items: flex-start;
+
+  .message {
+    margin-bottom: 5px;
+    max-width: 50%;
+    font-size: 18px;
+  }
+  
+  .yourMessage {
+    background-color: #303f9f !important;
+    color: white !important;
+  }
+  
+  .sendTime {
+    font-size: 8px;
+    color: rgba(0, 0, 0, .3);
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .author {
+    font-size: 13px;
+    color: rgba(0, 0, 0, .3);
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-bottom: 3px;
+  }
+  
 }
 
-.yourMessage {
-  background-color: #303f9f !important;
-  color: white !important;
-  align-self: flex-end;
+.yourMessageWrapper {
+  align-items: flex-end;
 }
+

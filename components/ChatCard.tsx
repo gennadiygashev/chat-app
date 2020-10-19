@@ -6,7 +6,7 @@ const ChatCard = ({ name }) => (
     <CardHeader
       avatar={
         <Avatar>
-          { name[0] }
+          { name[0].toUpperCase() }
         </Avatar>
       }
       title={name}

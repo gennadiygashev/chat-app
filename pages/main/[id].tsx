@@ -28,13 +28,16 @@ const Main: React.FC<MainProps> = ({ messages, users, nickname, roomID, setUsers
     socket.on('socket:new_message', (message: IMessage) => setMessage(message))
   }, [])
 
+
   const onSendMessage = () => {
+    const currentDate: Date = new Date()
     socket.emit('socket:new_message', {
       nickname,
       roomID,
-      text: messageValue
+      text: messageValue,
+      date: `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`
     })
-    setMessage({ nickname, text: messageValue })
+    setMessage({ nickname, text: messageValue, date: `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}` })
     setMessageValue('')
   }
 
@@ -62,8 +65,9 @@ const Main: React.FC<MainProps> = ({ messages, users, nickname, roomID, setUsers
               messages.map((message, index) => (
                 <Message 
                   text={message.text} 
-                  author={nickname === message.nickname ? 'you' : 'interlocutor'} 
+                  author={nickname === message.nickname ? 'you' : message.nickname} 
                   key={message + index} 
+                  date={message.date}
                 />
               ))
             }

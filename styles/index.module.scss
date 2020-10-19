@@ -1,0 +1,44 @@
+.root {
+  height: 100vh;
+
+  .wrapper {
+    width: 70vw;
+    height: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @media (max-width: 768px) {
+      flex-direction: column;
+      margin: 20px auto
+    }
+
+    .form {
+      display: flex;
+      padding: 20px;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: center;
+      flex: 1;
+      @media (max-width: 768px) {
+        flex: none;
+      }
+
+      .textInput {
+        width: 300px;
+        margin-bottom: 10px!important;
+      }
+      
+      .linkButton {
+        color: white;
+        text-decoration: none;
+      }
+      
+    }   
+
+  }  
+  
+}
+
+
+

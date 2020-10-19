@@ -1,0 +1,44 @@
+.root {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+
+  .chats {
+    width: 100%;
+    height: 100%;
+    flex: 1;
+    border-right: 1px solid rgba(0, 0, 0, .3);
+    padding-right: 8px;
+  }
+  
+  .mainChat {
+    width: 100%;
+    height: 100%;
+    flex: 4;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, .05);
+
+    .chatArea {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: flex-start;
+    }
+
+    .sendForm {
+      max-width: 100%;
+      display: flex;
+
+      .sendInput {
+        width: 100%;
+        margin-right: 10px;
+      }
+
+    }
+  }
+
+}
+

@@ -1,5 +1,8 @@
 Это [Next.js](https://nextjs.org/) проект создан при помощи [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+Для запуска клиентской части: <code>npm run dev</code> <br>
+Для запуска серверной части (сервер запускается по адресу: 'localhost:3001'): <code>npm run server</code>
+
 ## Описание проекта
 
 Благодарю вас, за то что вы зашли в мой репозиторий 'chat-app'.<br>

@@ -2,73 +2,93 @@ const express = require('express')
 const app = express()
 const server = require('http').createServer(app)
 const io = require('socket.io')(server)
-
-const rooms = new Map()
+const mongoose = require('mongoose')
+const Rooms = require('./model')
+const url = require('./mongoDBURL')
 
 app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*")
-  res.header("Access-Control-Allow-Methods", "GET, PUT, PATCH, POST, DELETE")
-  res.header("Access-Control-Allow-Headers", "Content-Type")
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, PATCH, POST, DELETE')
+  res.header('Access-Control-Allow-Headers', 'Content-Type')
   next()
 })
+
 app.use(express.json())
 
-app.get('/rooms/:id', (req, res) => {
+app.get('/rooms/:id', async (req, res) => {
   const { id: roomID } = req.params
-  const obj = rooms.has(roomID) 
-    ? {
-        users: [...rooms.get(roomID).get('users').values()],
-        messages: [...rooms.get(roomID).get('messages').values()],
-      } 
-    : {
-        users: [], 
-        messages: [] 
-      }
-  res.json(obj)
+  const roomData = await Rooms.findOne({ roomID: roomID })
+  res.json(roomData)
 })
 
-app.post('/rooms', (req, res) => {
-  const { nickname, roomID } = req.body
-  if(!rooms.has(roomID)) {
-    rooms.set(roomID, new Map([
-      ['users', new Map()], 
-      ['messages', []], 
-    ]))
+app.post('/rooms', async (req, res) => {
+  const { roomID } = req.body
+  const room = new Rooms({
+    roomID,
+  })
+  const findRes = await Rooms.findOne({ roomID: roomID })
+  if (!findRes) {
+    await room.save()
   }
-  res.json([...rooms.keys()])
+  res.sendStatus(200)
 })
 
 io.on('connection', (socket) => {
-  socket.on('socket:join', ({ roomID, nickname }) => {
-    socket.join(roomID)
-    rooms.get(roomID).get('users').set(socket.id, nickname)
-    const users = [...rooms.get(roomID).get('users').values()]
-    socket.to(roomID).emit('socket:set_users', users)
+  let thisRoomID = ''
+  let thisUserName = ''
+
+  socket.on('socket:join', async ({ roomID, userName }) => {
+    thisRoomID = roomID
+    thisUserName = userName
+
+    socket.join(thisRoomID)
+    await Rooms.updateOne(
+      { roomID: thisRoomID },
+      { $push: { users: thisUserName } }
+    )
+    const roomData = await Rooms.findOne({ roomID: thisRoomID }, 'users')
+    socket.to(thisRoomID).emit('socket:set_users', roomData)
   })
 
-  socket.on('socket:new_message', ({ roomID, nickname, text, date }) => {
-    const obj = {
-      nickname,
+  socket.on('socket:new_message', async ({ roomID, userName, text, date }) => {
+    const message = {
+      userName,
       text,
-      date
+      date,
     }
-    rooms.get(roomID).get('messages').push(obj)
-    socket.to(roomID).emit('socket:new_message', obj)
+    await Rooms.updateOne(
+      { roomID: thisRoomID },
+      { $push: { messages: message } }
+    )
+    socket.to(roomID).emit('socket:new_message', message)
   })
 
-  socket.on('disconnect', () => {
-    rooms.forEach((value, roomID) => {
-      if (value.get('users').delete(socket.id)) {
-        const users = [...value.get('users').values()]
-        socket.to(roomID).emit('socket:set_users', users)
-      }
+  socket.on('disconnect', async () => {
+    await Rooms.updateOne(
+      { roomID: thisRoomID },
+      { $pull: { users: thisUserName } }
+    )
+    const roomData = await Rooms.findOne({ roomID: thisRoomID }, 'users')
+    socket.to(thisRoomID).emit('socket:set_users', roomData)
+  })
+})
+
+async function start() {
+  try {
+    await mongoose.connect(url, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     })
-  })
-})
 
-server.listen(3001, (err) => {
-  if (err) {
-    throw Error(err)
+    server.listen(3001, (err) => {
+      if (err) {
+        throw Error(err)
+      }
+      console.log('Server is started on port: 3001')
+    })
+  } catch (e) {
+    console.error(e)
   }
-  console.log('Server is started on port: 3001')
-})
+}
+
+start()

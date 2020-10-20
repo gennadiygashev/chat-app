@@ -1,11 +1,11 @@
-import { InitialState } from "./types"
+import { InitialState } from './types'
 
 const initialState: InitialState = {
   joined: false,
   roomID: null,
-  nickname: null,
+  userName: null,
   users: [],
-  messages: []
+  messages: [],
 }
 
 const reducer = (state = initialState, action) => {
@@ -14,21 +14,18 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         joined: true,
-        nickname: action.payload.nickname,
+        userName: action.payload.userName,
         roomID: action.payload.roomID,
       }
     case 'SET_USERS':
       return {
         ...state,
-        users: action.payload
+        users: action.payload,
       }
     case 'SET_MESSAGE':
       return {
         ...state,
-        messages: [
-          ...state.messages,
-          action.payload
-        ]
+        messages: [...state.messages, action.payload],
       }
     default:
       return state

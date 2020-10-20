@@ -10,9 +10,11 @@ const MyApp = ({ Component, pageProps }: AppProps) => (
   </Provider>
 )
 
-MyApp.getInitialProps = async ({Component, ctx}) => {
-  const pageProps = Component.getInitialProps ? await Component.getInitialProps(ctx) : {}
-  return {pageProps: pageProps}
+MyApp.getInitialProps = async ({ Component, ctx }) => {
+  const pageProps = Component.getInitialProps
+    ? await Component.getInitialProps(ctx)
+    : {}
+  return { pageProps: pageProps }
 }
 
 const makeStore = () => store

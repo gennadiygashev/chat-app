@@ -12,32 +12,42 @@ import { InitialState, IMessage } from '../../store/types'
 
 interface MainProps {
   messages: any[]
-  users: string[]
-  nickname: string
+  users: any[]
+  userName: string
   roomID: string
 
   setUsers: (users: string[]) => void
   setMessage: (message: IMessage) => void
 }
 
-const Main: React.FC<MainProps> = ({ messages, users, nickname, roomID, setUsers, setMessage }) => {
+const Main: React.FC<MainProps> = ({
+  messages,
+  users,
+  userName,
+  roomID,
+  setUsers,
+  setMessage,
+}) => {
   const [messageValue, setMessageValue] = useState('')
 
   useEffect(() => {
-    socket.on('socket:set_users', (users: string[]) => setUsers(users))
+    socket.on('socket:set_users', (roomData: any) => setUsers(roomData.users))
     socket.on('socket:new_message', (message: IMessage) => setMessage(message))
   }, [])
-
 
   const onSendMessage = () => {
     const currentDate: Date = new Date()
     socket.emit('socket:new_message', {
-      nickname,
+      userName,
       roomID,
       text: messageValue,
-      date: `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`
+      date: `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`,
     })
-    setMessage({ nickname, text: messageValue, date: `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}` })
+    setMessage({
+      userName,
+      text: messageValue,
+      date: `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`,
+    })
     setMessageValue('')
   }
 
@@ -50,33 +60,28 @@ const Main: React.FC<MainProps> = ({ messages, users, nickname, roomID, setUsers
         <section className={classes.chats}>
           <h3>Комната {roomID}</h3>
           <h3>Oнлайн: ({users.length})</h3>
-          {
-            users.map((name, index) => (
-              <ChatCard 
-                name={name} 
-                key={name + index} 
-              />
-            ))
-          }
+          {users.map((userName, index) => (
+            <ChatCard name={userName} key={name + index} />
+          ))}
         </section>
         <section className={classes.mainChat}>
           <div className={classes.chatArea}>
-            {
-              messages.map((message, index) => (
-                <Message 
-                  text={message.text} 
-                  author={nickname === message.nickname ? 'you' : message.nickname} 
-                  key={message + index} 
-                  date={message.date}
-                />
-              ))
-            }
+            {messages.map((message, index) => (
+              <Message
+                text={message.text}
+                author={
+                  userName === message.userName ? 'you' : message.userName
+                }
+                key={message + index}
+                date={message.date}
+              />
+            ))}
           </div>
           <div className={classes.sendForm}>
-            <TextField 
-              variant="outlined" 
+            <TextField
+              variant="outlined"
               className={classes.sendInput}
-              onChange={e => setMessageValue(e.target.value)}
+              onChange={(e) => setMessageValue(e.target.value)}
               value={messageValue}
             />
             <Button
@@ -86,8 +91,8 @@ const Main: React.FC<MainProps> = ({ messages, users, nickname, roomID, setUsers
               endIcon={<SendIcon />}
               onClick={onSendMessage}
             >
-            Отправить
-          </Button>
+              Отправить
+            </Button>
           </div>
         </section>
       </div>
@@ -98,15 +103,13 @@ const Main: React.FC<MainProps> = ({ messages, users, nickname, roomID, setUsers
 const mapState = (state: InitialState) => ({
   messages: state.messages,
   users: state.users,
-  nickname: state.nickname,
-  roomID: state.roomID
+  userName: state.userName,
+  roomID: state.roomID,
 })
 
 const mapDispatch = (dispatch) => ({
-  setUsers: (users: string[]) => dispatch(setUsers(users)),
-  setMessage: (message: IMessage) => dispatch(setMessage(message))
+  setUsers: (users: any) => dispatch(setUsers(users)),
+  setMessage: (message: IMessage) => dispatch(setMessage(message)),
 })
 
 export default connect(mapState, mapDispatch)(Main)
-
-

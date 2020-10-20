@@ -1,14 +1,13 @@
 export interface IMessage {
   text: string
-  nickname: string
+  userName: string
   date: any
 }
 
 export interface InitialState {
-  joined: boolean,
-  roomID: string,
-  nickname: string,
-  users: string[],
+  joined: boolean
+  roomID: string
+  userName: string
+  users: string[]
   messages: any[]
 }
-

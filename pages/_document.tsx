@@ -1,4 +1,10 @@
-import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/document'
+import Document, {
+  Html,
+  Head,
+  Main,
+  NextScript,
+  DocumentContext,
+} from 'next/document'
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
@@ -10,10 +16,13 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          <meta name="description" content="Быстрый чат для общения с друзьями и коллегами" />
+          <meta
+            name="description"
+            content="Быстрый чат для общения с друзьями и коллегами"
+          />
           <meta name="robots" content="index,follow" />
           <meta name="keywords" content="Чат, Общение, Быстро" />
-          <meta charSet="utf-8" />        
+          <meta charSet="utf-8" />
         </Head>
         <body>
           <Main />

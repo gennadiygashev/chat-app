@@ -6,24 +6,24 @@ import axios from 'axios'
 import socket from '../utils/socket'
 import { joinedToRoom, setUsers } from '../store/actions'
 import classes from '../styles/index.module.scss'
-import { Button, TextField, Typography } from "@material-ui/core"
-import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight'  
+import { Button, TextField, Typography } from '@material-ui/core'
+import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight'
 
 interface IndexProps {
-  joinedToRoom: (roomID: string, nickname: string) => void
+  joinedToRoom: (roomID: string, userName: string) => void
   setUsers: (users: []) => void
 }
 
-const Index: React.FC<IndexProps> = ({ joinedToRoom, setUsers }) => { 
-  const [nickname, setNickname] = useState('')
+const Index: React.FC<IndexProps> = ({ joinedToRoom, setUsers }) => {
+  const [userName, setNickname] = useState('')
   const [roomID, setRoomID] = useState('')
   const router = useRouter()
 
   const onLogin = async () => {
-    joinedToRoom(roomID, nickname)
+    joinedToRoom(roomID, userName)
     socket.emit('socket:join', {
       roomID,
-      nickname
+      userName,
     })
     const { data } = await axios.get(`http://localhost:3001/rooms/${roomID}`)
     setUsers(data.users)
@@ -31,13 +31,14 @@ const Index: React.FC<IndexProps> = ({ joinedToRoom, setUsers }) => {
   }
 
   const onSubmit = async () => {
-    if (!roomID || !nickname) {
+    if (!roomID || !userName) {
       return alert('Одно из полей отсутсвует')
     }
-    await axios.post('http://localhost:3001/rooms', {nickname, roomID})
-    .then(onLogin)
+    await axios
+      .post('http://localhost:3001/rooms', { userName, roomID })
+      .then(onLogin)
   }
-  
+
   return (
     <>
       <Head>
@@ -45,29 +46,29 @@ const Index: React.FC<IndexProps> = ({ joinedToRoom, setUsers }) => {
       </Head>
       <div className={classes.root}>
         <div className={classes.wrapper}>
-          <Typography variant='h2'>Начните беседу сейчас!</Typography>
+          <Typography variant="h2">Начните беседу сейчас!</Typography>
           <div className={classes.form}>
-            <TextField 
-              required 
-              label="Ваше имя" 
-              className={classes.textInput} 
-              value={nickname} 
-              onChange={e => setNickname(e.target.value)} 
+            <TextField
+              required
+              label="Ваше имя"
+              className={classes.textInput}
+              value={userName}
+              onChange={(e) => setNickname(e.target.value)}
             />
-            <TextField 
-              required 
-              label="ID комнаты" 
-              className={classes.textInput} 
-              value={roomID} 
-              onChange={e => setRoomID(e.target.value)}
+            <TextField
+              required
+              label="ID комнаты"
+              className={classes.textInput}
+              value={roomID}
+              onChange={(e) => setRoomID(e.target.value)}
             />
-            <Button 
-              variant="contained" 
-              color="primary" 
+            <Button
+              variant="contained"
+              color="primary"
               className={classes.linkButton}
               onClick={onSubmit}
             >
-              <KeyboardArrowRightIcon/>
+              <KeyboardArrowRightIcon />
               Вперед!
             </Button>
           </div>
@@ -77,9 +78,10 @@ const Index: React.FC<IndexProps> = ({ joinedToRoom, setUsers }) => {
   )
 }
 
-const mapDispatch = dispatch => ({
+const mapDispatch = (dispatch) => ({
   setUsers: (users: []) => dispatch(setUsers(users)),
-  joinedToRoom: (roomID: string, nickname: string) => dispatch(joinedToRoom(roomID, nickname)),
+  joinedToRoom: (roomID: string, userName: string) =>
+    dispatch(joinedToRoom(roomID, userName)),
 })
 
 export default connect(null, mapDispatch)(Index)

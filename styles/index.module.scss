@@ -1,5 +1,7 @@
 .root {
   height: 100vh;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.com/svgjs' width='1920' height='1080' preserveAspectRatio='none' viewBox='0 0 1920 1080'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1022%26quot%3b)' fill='none'%3e%3crect width='1920' height='1080' x='0' y='0' fill='url(%23SvgjsLinearGradient1023)'%3e%3c/rect%3e%3cpath d='M222.18 1172.41C404.28 1143.14 494 705.01 790.09 701.51 1086.18 698.01 1074.04 836.51 1358 836.51 1641.96 836.51 1779.98 702.43 1925.91 701.51' stroke='rgba(51%2c121%2c194%2c0.58)' stroke-width='2'%3e%3c/path%3e%3cpath d='M260.7 1180.21C425.11 1175.89 565.5 938.74 872.62 938.64 1179.74 938.54 1178.58 1073.64 1484.55 1073.64 1790.51 1073.64 1939.81 939.44 2096.47 938.64' stroke='rgba(51%2c121%2c194%2c0.58)' stroke-width='2'%3e%3c/path%3e%3cpath d='M657.46 1148.72C812.93 1132.16 909.33 795.49 1172.74 794.28 1436.15 793.07 1430.38 929.28 1688.01 929.28 1945.65 929.28 2070.13 795.39 2203.29 794.28' stroke='rgba(51%2c121%2c194%2c0.58)' stroke-width='2'%3e%3c/path%3e%3cpath d='M202.45 1173.76C465.28 1162.86 638.5 743.3 1155.19 727.12 1671.89 710.94 1853.7 376.49 2107.94 370.72' stroke='rgba(51%2c121%2c194%2c0.58)' stroke-width='2'%3e%3c/path%3e%3cpath d='M143.89 1233.14C432.44 1187.22 589.2 490.07 1045.28 489.24 1501.35 488.41 1693.52 940.25 1946.66 953.64' stroke='rgba(51%2c121%2c194%2c0.58)' stroke-width='2'%3e%3c/path%3e%3c/g%3e%3cdefs%3e%3cmask id='SvgjsMask1022'%3e%3crect width='1920' height='1080' fill='white'%3e%3c/rect%3e%3c/mask%3e%3clinearGradient x1='10.94%25' y1='-19.44%25' x2='89.06%25' y2='119.44%25' gradientUnits='userSpaceOnUse' id='SvgjsLinearGradient1023'%3e%3cstop stop-color='%230e2a47' offset='0'%3e%3c/stop%3e%3cstop stop-color='%2300459e' offset='1'%3e%3c/stop%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e");
+  color: white;
 
   .wrapper {
     width: 70vw;
@@ -20,6 +22,7 @@
       align-items: flex-end;
       justify-content: center;
       flex: 1;
+      color: white;
       @media (max-width: 768px) {
         flex: none;
       }
@@ -27,6 +30,18 @@
       .textInput {
         width: 300px;
         margin-bottom: 10px !important;
+
+        label {
+          color: white;
+        }
+
+        input {
+          color: white;
+        }
+
+        fieldset {
+          border-color: white;
+        }
       }
 
       .linkButton {

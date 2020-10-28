@@ -13,7 +13,7 @@ const Message: React.FC<MessageProps> = ({text, author, date}) => {
       <div className={classes.author}>
         {
           author === 'you' ?
-          'Ты' :
+          'Вы' :
           author
         }
       </div>

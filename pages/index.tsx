@@ -4,39 +4,35 @@ import { useState } from 'react'
 import { connect } from 'react-redux'
 import axios from 'axios'
 import socket from '../utils/socket'
-import { joinedToRoom, setUsers } from '../store/actions'
+import { joinedToService, setData } from '../store/actions'
 import classes from '../styles/index.module.scss'
 import { Button, TextField, Typography } from '@material-ui/core'
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight'
 
 interface IndexProps {
-  joinedToRoom: (roomID: string, userName: string) => void
-  setUsers: (users: []) => void
+  setData: (chats: any[], requests: any[]) => void
+  joinedToService: (userName: string) => void
 }
 
-const Index: React.FC<IndexProps> = ({ joinedToRoom, setUsers }) => {
+const Index: React.FC<IndexProps> = ({ setData, joinedToService }) => {
   const [userName, setNickname] = useState('')
-  const [roomID, setRoomID] = useState('')
   const router = useRouter()
 
   const onLogin = async () => {
-    joinedToRoom(roomID, userName)
-    socket.emit('socket:join', {
-      roomID,
+    joinedToService(userName)
+    socket.emit('socket:join-to-userpage', {
       userName,
     })
-    const { data } = await axios.get(`http://localhost:3001/rooms/${roomID}`)
-    setUsers(data.users)
-    router.push(`/main/${roomID}`)
+    const { data } = await axios.get(`http://localhost:3001/users/${userName}`)
+    setData(data.chats, data.requests)
+    router.push(`/main`)
   }
 
   const onSubmit = async () => {
-    if (!roomID || !userName) {
-      return alert('Одно из полей отсутсвует')
+    if (!userName) {
+      return alert('Необходимо ввести ваше имя!')
     }
-    await axios
-      .post('http://localhost:3001/rooms', { userName, roomID })
-      .then(onLogin)
+    await axios.post('http://localhost:3001/users', { userName }).then(onLogin)
   }
 
   return (
@@ -46,21 +42,17 @@ const Index: React.FC<IndexProps> = ({ joinedToRoom, setUsers }) => {
       </Head>
       <div className={classes.root}>
         <div className={classes.wrapper}>
-          <Typography variant="h2">Начните беседу сейчас!</Typography>
+          <Typography variant="h2">
+            Начните <br /> беседу <br /> сейчас!
+          </Typography>
           <div className={classes.form}>
             <TextField
               required
               label="Ваше имя"
               className={classes.textInput}
+              variant='outlined'
               value={userName}
               onChange={(e) => setNickname(e.target.value)}
-            />
-            <TextField
-              required
-              label="ID комнаты"
-              className={classes.textInput}
-              value={roomID}
-              onChange={(e) => setRoomID(e.target.value)}
             />
             <Button
               variant="contained"
@@ -79,9 +71,8 @@ const Index: React.FC<IndexProps> = ({ joinedToRoom, setUsers }) => {
 }
 
 const mapDispatch = (dispatch) => ({
-  setUsers: (users: []) => dispatch(setUsers(users)),
-  joinedToRoom: (roomID: string, userName: string) =>
-    dispatch(joinedToRoom(roomID, userName)),
+  setData: (chats: any[], requests: any[]) => dispatch(setData(chats, requests)),
+  joinedToService: (userName: string) => dispatch(joinedToService(userName)),
 })
 
 export default connect(null, mapDispatch)(Index)

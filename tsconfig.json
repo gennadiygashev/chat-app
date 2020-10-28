@@ -21,7 +21,7 @@
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx", "server/index.js", "pages/index.tsx"
+    "**/*.tsx", "server/index.js", "pages/index.tsx", "svg/ChatIcon.js"
   ],
   "exclude": [
     "node_modules"

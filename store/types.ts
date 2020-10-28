@@ -6,8 +6,8 @@ export interface IMessage {
 
 export interface InitialState {
   joined: boolean
-  roomID: string
   userName: string
-  users: string[]
+  chats: any[]
   messages: any[]
+  requests: any[]
 }

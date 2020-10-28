@@ -1,19 +1,19 @@
 import { IMessage } from './types'
 
-export function joinedToRoom(roomID: string, userName: string) {
+export function joinedToService(userName: string) {
   return {
     type: 'JOINED',
-    payload: {
-      roomID,
-      userName,
-    },
+    payload: userName,
   }
 }
 
-export function setUsers(users: string[]) {
+export function setData(chats: any[], requests: any[]) {
   return {
-    type: 'SET_USERS',
-    payload: users,
+    type: 'SET_DATA',
+    payload: {
+      chats,
+      requests,
+    },
   }
 }
 
@@ -23,3 +23,32 @@ export function setMessage(message: IMessage) {
     payload: message,
   }
 }
+
+export function setMessages(messages: IMessage[]) {
+  return {
+    type: 'SET_MESSAGES',
+    payload: messages,
+  }
+}
+
+export function setRequest(request: string) {
+  return {
+    type: 'SET_REQUEST',
+    payload: request,
+  }
+}
+
+export function setChat(chat: any) {
+  return {
+    type: 'SET_CHAT',
+    payload: chat,
+  }
+}
+
+export function deleteRequest(request: string) {
+  return {
+    type: 'DELETE_REQUEST',
+    payload: request,
+  }
+}
+

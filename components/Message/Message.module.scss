@@ -3,6 +3,7 @@
   flex-direction: column;
   width: 100%;
   margin: 3px;
+  margin-bottom: 12px;
   align-items: flex-start;
 
   .message {
@@ -14,10 +15,19 @@
   .yourMessage {
     background-color: #303f9f !important;
     color: white !important;
+    min-height: 32px !important;
+    max-height: auto !important;
+    height: auto !important;
+
+    span {
+      white-space: normal !important;
+      padding: 8px 12px;
+    }
   }
   
   .sendTime {
-    font-size: 8px;
+    font-size: 11px;
+    font-weight: 300;
     color: rgba(0, 0, 0, .3);
     padding-left: 6px;
     padding-right: 6px;

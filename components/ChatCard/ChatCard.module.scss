@@ -1,0 +1,17 @@
+.cardRoot {
+  margin-bottom: 8px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+
+  .avatar {
+    margin-right: 12px;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+}

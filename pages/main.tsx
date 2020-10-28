@@ -1,4 +1,5 @@
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 import React, { useState, useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
 import socket from '../utils/socket'
@@ -26,6 +27,7 @@ import Alert from '@material-ui/lab/Alert/Alert'
 type Color = 'success' | 'info' | 'warning' | 'error'
 
 interface MainProps {
+  joined: boolean
   messages: any[]
   chats: any[]
   requests: any[]
@@ -41,6 +43,7 @@ interface MainProps {
 }
 
 const Main: React.FC<MainProps> = ({
+  joined,
   chats,
   userName,
   requests,
@@ -51,12 +54,18 @@ const Main: React.FC<MainProps> = ({
   setChat,
   deleteRequest,
 }) => {
+  const router = useRouter()
+
+  if (!joined && typeof window !== 'undefined') {
+    router.push('/')
+  }
+  
   const [messageValue, setMessageValue] = useState('')
   const [friendRequestValue, setFriendRequestValue] = useState('')
   const [currentChat, setCurrentChat] = useState('')
   const [open, setOpen] = React.useState(false)
   const [resMessageType, setResMessageType] = useState<Color>('info')
-  const resMessage = useRef('') 
+  const resMessage = useRef('')
 
   useEffect(() => {
     socket.on('socket:add-chat-message', (userName: string) =>
@@ -67,19 +76,19 @@ const Main: React.FC<MainProps> = ({
         case 'HAS_ALREADY':
           setResMessageType('warning')
           resMessage.current = 'Пользователь уже есть в списке ваших друзей'
-          setOpen(true)  
+          setOpen(true)
           break
         case 'NOT_FOUND':
           setResMessageType('error')
           resMessage.current = 'Пользователя с таким именем не существует'
-          setOpen(true)  
+          setOpen(true)
           break
         case 'SUCCESS':
           setResMessageType('success')
           resMessage.current = 'Успешно!'
-          setOpen(true)  
+          setOpen(true)
           break
-      }  
+      }
     })
     socket.on('socket:set-new-chat', (chat: string) => setChat(chat))
     socket.on('socket:set-message', (message: any) => setMessage(message))
@@ -90,11 +99,11 @@ const Main: React.FC<MainProps> = ({
 
   const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
     if (reason === 'clickaway') {
-      return;
+      return
     }
 
-    setOpen(false);
-  };
+    setOpen(false)
+  }
 
   const socketConnectionHandler = (newChatID: string) => {
     socket.emit('socket:join-to-chat', {
@@ -235,6 +244,7 @@ const mapState = (state: InitialState) => ({
   userName: state.userName,
   messages: state.messages,
   requests: state.requests,
+  joined: state.joined,
 })
 
 const mapDispatch = (dispatch) => ({

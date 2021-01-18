@@ -1,21 +1,12 @@
-Это [Next.js](https://nextjs.org/) проект создан при помощи [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+[Next.js](https://nextjs.org/) [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-Для запуска клиентской части: <code>npm run dev</code> <br>
-Для запуска серверной части (сервер запускается по адресу: 'localhost:3001'): <code>npm run server</code>
+Client: <code>npm run dev</code> <br>
+Server: <code>npm run server</code>
 
-## Описание проекта
-
-Благодарю вас, за то что вы зашли в мой репозиторий 'chat-app'.<br>
-Этот проект еще находится в стадии разработки и функционал может немного измениться.<br>
-<br>
-Это небольшое приложение для обмена моментальными сообщениями пользователей в общих комнатах, которые создают сами пользователи.<br>
-Сообщения могут состоять только из текстовой составлящей.<br>  
-
-## Описание технической составляющей
+## Stack
 <ul>
-  <li>Проект написан с использованием технологии Next.js и Redux.<br>  </li>
-  <li>На серверной части был использован Express.js в связке с библиотекой Socket.io для моментального обмена сообщениями. </li>
-  <li>Axios для запросов на сервер.<br></li>
-  <li>База данных MongoDB в связке с mongoose.<br></li>
-  <li>В качестве UIKit был использован MaterialUI, а также кастомные решения с помощью SCSS модулей.<br>  </li> 
+  <li>Frontend: Next.JS and Redux<br>  </li>
+  <li>Backend: Express and Socket.io<br> </li>
+  <li>Database: MongoDB and orm mongoose<br> </li>
+  <li>UI: MaterialUI and Sass<br> </li> 
 </ul>

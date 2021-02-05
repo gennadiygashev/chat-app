@@ -1,67 +1,62 @@
 import Head from 'next/head'
-import { useRouter } from 'next/router'
 import { useState } from 'react'
-import { connect } from 'react-redux'
-import axios from 'axios'
-import socket from '../utils/socket'
-import { joinedToService, setData } from '../store/actions'
 import classes from '../styles/index.module.scss'
 import { Button, TextField, Typography } from '@material-ui/core'
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight'
+import { serverURL } from '../utils/serverURL'
+import axios from 'axios'
+import { loginAction } from '../redux/actions'
+import { User } from '../types/User'
+import { connect } from 'react-redux'
+import { useRouter } from 'next/router'
 
-interface IndexProps {
-  setData: (chats: any[], requests: any[]) => void
-  joinedToService: (userName: string) => void
+type Props = {
+  loginAction: (userData: User) => void
 }
 
-const Index: React.FC<IndexProps> = ({ setData, joinedToService }) => {
-  const [userName, setNickname] = useState('')
+const Index: React.FC<Props> = ({ loginAction }) => {
   const router = useRouter()
+  const [input, setInput] = useState<string>('')
 
-  const onLogin = async () => {
-    joinedToService(userName)
-    socket.emit('socket:join-to-userpage', {
-      userName,
+  const handleSubmit = async () => {
+    const res = await axios.post(`${serverURL}/auth`, {
+      username: input
     })
-    const { data } = await axios.get(`http://localhost:3001/users/${userName}`)
-    setData(data.chats, data.requests)
-    router.push(`/main`)
-  }
 
-  const onSubmit = async () => {
-    if (!userName) {
-      return alert('Необходимо ввести ваше имя!')
+    if (res.status === 200 || 201) {
+      loginAction(res.data)
+
+      await router.push('/main')
     }
-    await axios.post('http://localhost:3001/users', { userName }).then(onLogin)
   }
 
   return (
     <>
       <Head>
-        <title>Chat-App - Ваш выбор для быстрой работы</title>
+        <title>Chat-App - Your-Chat</title>
       </Head>
       <div className={classes.root}>
         <div className={classes.wrapper}>
-          <Typography variant="h2">
-            Начните <br /> беседу <br /> сейчас!
+          <Typography variant='h2'>
+            Start <br /> Chat <br /> Now!
           </Typography>
           <div className={classes.form}>
             <TextField
               required
-              label="Ваше имя"
+              label='Your name'
               className={classes.textInput}
               variant='outlined'
-              value={userName}
-              onChange={(e) => setNickname(e.target.value)}
+              value={input}
+              onChange={e => setInput(e.target.value)}
             />
             <Button
-              variant="contained"
-              color="primary"
+              variant='contained'
+              color='primary'
               className={classes.linkButton}
-              onClick={onSubmit}
+              onClick={handleSubmit}
             >
               <KeyboardArrowRightIcon />
-              Вперед!
+              Let's go!
             </Button>
           </div>
         </div>
@@ -70,9 +65,8 @@ const Index: React.FC<IndexProps> = ({ setData, joinedToService }) => {
   )
 }
 
-const mapDispatch = (dispatch) => ({
-  setData: (chats: any[], requests: any[]) => dispatch(setData(chats, requests)),
-  joinedToService: (userName: string) => dispatch(joinedToService(userName)),
+const mapDispatch = dispatch => ({
+  loginAction: (userData: User) => dispatch(loginAction(userData))
 })
 
 export default connect(null, mapDispatch)(Index)

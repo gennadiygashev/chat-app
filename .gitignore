@@ -35,4 +35,4 @@ yarn-error.log*
 .vercel
 
 # url
-/server/mongoDBURL.js
+/server/mongoDBURL.ts

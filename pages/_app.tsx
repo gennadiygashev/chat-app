@@ -1,13 +1,9 @@
-import { Provider } from 'react-redux'
-import withRedux from 'next-redux-wrapper'
 import type { AppProps } from 'next/app'
-import store from '../store/store'
+import { wrapper } from '../redux/store'
 import '../styles/globals.scss'
 
 const MyApp = ({ Component, pageProps }: AppProps) => (
-  <Provider store={store}>
-    <Component {...pageProps} />
-  </Provider>
+  <Component {...pageProps} />
 )
 
 MyApp.getInitialProps = async ({ Component, ctx }) => {
@@ -17,6 +13,4 @@ MyApp.getInitialProps = async ({ Component, ctx }) => {
   return { pageProps: pageProps }
 }
 
-const makeStore = () => store
-
-export default withRedux(makeStore)(MyApp)
+export default wrapper.withRedux(MyApp)

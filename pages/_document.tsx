@@ -3,7 +3,7 @@ import Document, {
   Head,
   Main,
   NextScript,
-  DocumentContext,
+  DocumentContext
 } from 'next/document'
 
 class MyDocument extends Document {
@@ -17,12 +17,12 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <meta
-            name="description"
-            content="Быстрый чат для общения с друзьями и коллегами"
+            name='description'
+            content='Быстрый чат для общения с друзьями и коллегами'
           />
-          <meta name="robots" content="index,follow" />
-          <meta name="keywords" content="Чат, Общение, Быстро" />
-          <meta charSet="utf-8" />
+          <meta name='robots' content='index,follow' />
+          <meta name='keywords' content='Чат, Общение, Быстро' />
+          <meta charSet='utf-8' />
         </Head>
         <body>
           <Main />

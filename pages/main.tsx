@@ -1,258 +1,240 @@
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import React, { useState, useEffect, useRef } from 'react'
-import { connect } from 'react-redux'
-import socket from '../utils/socket'
-import ChatCard from '../components/ChatCard'
-import AddChatCard from '../components/AddChatCard'
-import Message from '../components/Message'
-import {
-  setMessage,
-  setRequest,
-  setChat,
-  deleteRequest,
-  setMessages,
-} from '../store/actions'
+import Paper from '@material-ui/core/Paper'
+import Grid from '@material-ui/core/Grid'
+import Divider from '@material-ui/core/Divider'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
+import Avatar from '@material-ui/core/Avatar'
 import classes from '../styles/main.module.scss'
-import { InitialState, IMessage } from '../store/types'
-import AddChatInput from '../components/AddChatInput'
-import ChatIcon from '../svg/ChatIcon'
-import EmptyChatIcon from '../svg/EmptyChatIcon'
-import SearchIcon from '../svg/SearchIcon'
-import SadIcon from '../svg/SadIcon'
-import SendMessageInput from '../components/SendMessageForm'
-import { Snackbar } from '@material-ui/core'
-import Alert from '@material-ui/lab/Alert/Alert'
+import { State } from '../redux/reducer'
+import { connect } from 'react-redux'
+import { User } from '../types/User'
+import MessageArea from '../components/MessageArea'
+import { Chat } from '../types/Chat'
+import axios from 'axios'
+import { serverURL } from '../utils/serverURL'
+import {
+  addFriend,
+  chatAction,
+  delRequest,
+  MessageAction,
+  updateAction
+} from '../redux/actions'
+import { useState } from 'react'
+import io from 'socket.io-client'
+import { ADD_MESSAGE } from '../redux/constants'
+import {
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput
+} from '@material-ui/core'
+import SearchIcon from '@material-ui/icons/Search'
+import { useRouter } from 'next/router'
+import FriendList from '../components/FriendList'
+import RequestList from '../components/RequestList'
 
-type Color = 'success' | 'info' | 'warning' | 'error'
-
-interface MainProps {
-  joined: boolean
-  messages: any[]
-  chats: any[]
-  requests: any[]
-  userName: string
-  roomID: string
-
-  setChats: (chats: string[]) => void
-  setMessage: (message: IMessage) => void
-  setMessages: (messages: IMessage[]) => void
-  setRequest: (request: string) => void
-  setChat: (chat: any) => void
-  deleteRequest: (request: string) => void
+type Props = {
+  userData: User | null
+  chatData: Chat | null
+  chatAction: (chatData: Chat) => void
+  updateAction: (res: MessageAction) => void
+  addFriend: (res: { username: string; chatID: string }) => void
+  delRequest: (res: string) => void
 }
 
-const Main: React.FC<MainProps> = ({
-  joined,
-  chats,
-  userName,
-  requests,
-  messages,
-  setMessage,
-  setMessages,
-  setRequest,
-  setChat,
-  deleteRequest,
+const Main: React.FC<Props> = ({
+  userData,
+  chatData,
+  chatAction,
+  updateAction,
+  addFriend,
+  delRequest
 }) => {
   const router = useRouter()
+  const [input, setInput] = useState<string>('')
+  const [friendInput, setFriendInput] = useState<string>('')
+  const [friendInputErr, setFriendInputErr] = useState<string>('')
+  const [socket, setSocket] = useState<any>()
 
-  if (!joined && typeof window !== 'undefined') {
-    router.push('/')
+  if (!userData) router.push('/')
+
+  const handleSubmit = async () => {
+    if (input.length > 0) {
+      const timeNow = String(new Date())
+
+      await axios.post(`${serverURL}/send-message`, {
+        message: input,
+        username: userData.username,
+        chatID: chatData._id
+      })
+
+      socket.emit('update', {
+        type: ADD_MESSAGE,
+        payload: {
+          text: input,
+          username: userData.username,
+          date: timeNow
+        }
+      })
+    }
+
+    setInput('')
   }
-  
-  const [messageValue, setMessageValue] = useState('')
-  const [friendRequestValue, setFriendRequestValue] = useState('')
-  const [currentChat, setCurrentChat] = useState('')
-  const [open, setOpen] = React.useState(false)
-  const [resMessageType, setResMessageType] = useState<Color>('info')
-  const resMessage = useRef('')
 
-  useEffect(() => {
-    socket.on('socket:add-chat-message', (userName: string) =>
-      setRequest(userName)
-    )
-    socket.on('socket:add-chat-response', (res: string) => {
-      switch (res) {
-        case 'HAS_ALREADY':
-          setResMessageType('warning')
-          resMessage.current = 'Пользователь уже есть в списке ваших друзей'
-          setOpen(true)
-          break
-        case 'NOT_FOUND':
-          setResMessageType('error')
-          resMessage.current = 'Пользователя с таким именем не существует'
-          setOpen(true)
-          break
-        case 'SUCCESS':
-          setResMessageType('success')
-          resMessage.current = 'Успешно!'
-          setOpen(true)
-          break
+  const socketConnect = (chatID: string) => {
+    socket && socket.disconnect()
+
+    const initSocket = io('ws://localhost:3001', {
+      transports: ['websocket'],
+      query: {
+        chatID
+      },
+      timeout: 25000
+    })
+
+    setSocket(initSocket)
+
+    initSocket.on('connect', () => {
+      console.log('Socket connected')
+    })
+
+    initSocket.on('disconnect', (reason: string) => {
+      console.log('Socket disconnected because:', reason)
+    })
+
+    initSocket.on('reconnect_attempt', () => {
+      socket.io.opts.transports = ['polling', 'websocket']
+    })
+
+    initSocket.on('update', (data: any) => {
+      updateAction({ type: data.type, payload: data.payload })
+    })
+  }
+
+  const handleClick = async (chatID: string) => {
+    const res = await axios.get(`${serverURL}/chat`, {
+      params: {
+        chatID
       }
     })
-    socket.on('socket:set-new-chat', (chat: string) => setChat(chat))
-    socket.on('socket:set-message', (message: any) => setMessage(message))
-    socket.on('socket:set-messages', (messages: any) => {
-      setMessages(messages)
-    })
-  }, [])
 
-  const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
+    chatAction(res.data)
+    socketConnect(chatID)
+  }
+
+  const handleAddFriend = async () => {
+    if (friendInput.length > 0) {
+      const res = await axios.post(`${serverURL}/send-add-friend-request`, {
+        username: userData.username,
+        friendName: friendInput
+      })
+
+      setFriendInputErr(res.data)
     }
-
-    setOpen(false)
   }
 
-  const socketConnectionHandler = (newChatID: string) => {
-    socket.emit('socket:join-to-chat', {
-      prevChatID: currentChat,
-      newChatID: newChatID,
+  const handleSubmitFriend = async (friend: string) => {
+    const id = await axios.post(`${serverURL}/submit-add-friend-request`, {
+      username: userData.username,
+      friendName: friend
     })
-    setCurrentChat(newChatID)
-  }
 
-  const submitRequestHandler = (user: string) => {
-    deleteRequest(user)
-    socket.emit('socket:add-chat-request-success', {
-      potentialFriendName: user,
+    addFriend({
+      username: friend,
+      chatID: id.data
     })
   }
 
-  const sendMessageHandler = () => {
-    const currentDate: Date = new Date()
-    const message = {
-      userName,
-      text: messageValue,
-      date: `${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`,
-    }
-    socket.emit('socket:send-message', { message })
-    setMessageValue('')
-  }
-
-  const addChatHandler = () => {
-    socket.emit('socket:add-chat-request', {
-      potentialFriendName: friendRequestValue,
+  const handleCancelFriend = (friend: string) => {
+    axios.post(`${serverURL}/cancel-add-friend-request`, {
+      username: userData.username,
+      friendName: friend
     })
-    setFriendRequestValue('')
+
+    delRequest(friend)
   }
 
   return (
-    <>
-      <Head>
-        <title>Chat-App | Ваши чаты</title>
-      </Head>
-      <div className={classes.root}>
-        <section className={classes.chats}>
-          <h3>Ваши чаты: </h3>
-          {chats.length === 0 ? (
-            <div className={classes.emptyList}>
-              <SadIcon />
-              <h3 className={classes.emptyFriendList}>
-                Список ваших чатов пока пуст.
-              </h3>
-            </div>
-          ) : (
-            <div className={classes.list}>
-              {chats.map((chat) => (
-                <ChatCard
-                  chat={chat}
-                  key={chat.chatID}
-                  connectionHandler={socketConnectionHandler}
-                />
-              ))}
-            </div>
-          )}
-          <h3>Заявки в друзья:</h3>
-          {requests.length === 0 ? (
-            <div className={classes.emptyList}>
-              <SearchIcon />
-              <h3 className={classes.emptyFriendList}>
-                Новых заявок пока нет.
-              </h3>
-              <h4 className={classes.emptyFriendList}>
-                Введите имя своего друга и добавьте его в список своих
-                контактов.
-              </h4>
-            </div>
-          ) : (
-            <div className={classes.list}>
-              {requests.map((request, index) => (
-                <AddChatCard
-                  name={request}
-                  key={request + index}
-                  addChat={submitRequestHandler}
-                />
-              ))}
-            </div>
-          )}
-          <Snackbar open={open} autoHideDuration={2000} onClose={handleClose}>
-            <Alert severity={resMessageType} onClose={handleClose}>
-              {resMessage.current}
-            </Alert>
-          </Snackbar>
-          <AddChatInput
-            value={friendRequestValue}
-            onChangeHandler={setFriendRequestValue}
-            addChatHandler={addChatHandler}
-          />
-        </section>
-        <section className={classes.mainChat}>
-          {!currentChat ? (
-            <div className={classes.emptyChatArea}>
-              <ChatIcon />
-              <h3>Выберете чат слева чтобы начать диалог</h3>
-            </div>
-          ) : (
-            <>
-              <div className={classes.chatArea}>
-                {messages.length === 0 ? (
-                  <div className={classes.emptyChatArea}>
-                    <EmptyChatIcon />
-                    <h3>Список сообщений пока пуст.</h3>
-                    <h4>Отправьте свое первое сообщение.</h4>
-                  </div>
-                ) : (
-                  messages.map((message, index) => (
-                    <Message
-                      text={message.text}
-                      author={
-                        userName === message.userName ? 'you' : message.userName
-                      }
-                      key={message.text + index}
-                      date={message.date}
-                    />
-                  ))
-                )}
-              </div>
-              <SendMessageInput
-                value={messageValue}
-                setMessageValue={setMessageValue}
-                sendMessageHandler={sendMessageHandler}
+    <div className={classes.root}>
+      <Grid container component={Paper} className={classes.chatSection}>
+        <Grid item xs={3} className={classes.borderRight500}>
+          <List>
+            <ListItem>
+              <ListItemIcon>
+                <Avatar>{userData.username[0]}</Avatar>
+              </ListItemIcon>
+              <ListItemText primary={userData.username} />
+            </ListItem>
+          </List>
+          <Divider />
+          <Grid item xs={12} style={{ padding: '10px' }}>
+            <FormControl
+              variant='outlined'
+              fullWidth
+              error={friendInputErr.length > 0}
+            >
+              <InputLabel htmlFor='outlined-adornment-password'>
+                Add friend
+              </InputLabel>
+              <OutlinedInput
+                id='outlined-basic-email'
+                label='Add friend'
+                onChange={e => {
+                  setFriendInput(e.target.value)
+                  setFriendInputErr('')
+                }}
+                endAdornment={
+                  <InputAdornment position='end'>
+                    <IconButton onClick={handleAddFriend}>
+                      <SearchIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
               />
-            </>
-          )}
-        </section>
-      </div>
-    </>
+              <FormHelperText error={friendInputErr.length > 0}>
+                {friendInputErr}
+              </FormHelperText>
+            </FormControl>
+          </Grid>
+          <Divider />
+          <List>
+            <FriendList userData={userData} handleClick={handleClick} />
+            <RequestList
+              userData={userData}
+              handleSubmitFriend={handleSubmitFriend}
+              handleCancelFriend={handleCancelFriend}
+            />
+          </List>
+        </Grid>
+        {chatData ? (
+          <MessageArea
+            chat={chatData}
+            username={userData.username}
+            input={input}
+            setInput={setInput}
+            handleSubmit={handleSubmit}
+          />
+        ) : null}
+      </Grid>
+    </div>
   )
 }
 
-const mapState = (state: InitialState) => ({
-  chats: state.chats,
-  userName: state.userName,
-  messages: state.messages,
-  requests: state.requests,
-  joined: state.joined,
+const mapState = (state: State) => ({
+  userData: state.user,
+  chatData: state.chat
 })
 
-const mapDispatch = (dispatch) => ({
-  setMessage: (message: IMessage) => dispatch(setMessage(message)),
-  setRequest: (request: string) => dispatch(setRequest(request)),
-  setChat: (chat: string) => dispatch(setChat(chat)),
-  deleteRequest: (request: string) => dispatch(deleteRequest(request)),
-  setMessages: (messages: any) => dispatch(setMessages(messages)),
+const mapDispatch = dispatch => ({
+  chatAction: (chatData: Chat) => dispatch(chatAction(chatData)),
+  updateAction: (res: MessageAction) => dispatch(updateAction(res)),
+  addFriend: (res: { username: string; chatID: string }) =>
+    dispatch(addFriend(res)),
+  delRequest: (res: string) => dispatch(delRequest(res))
 })
 
 export default connect(mapState, mapDispatch)(Main)

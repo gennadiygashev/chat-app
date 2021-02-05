@@ -1,0 +1,8 @@
+.messageArea {
+  max-height: 85vh;
+  min-height: 85vh;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end
+}
